@@ -366,6 +366,32 @@
       display: block; width: clamp(5px, 0.42vw, 8px); height: clamp(5px, 0.42vw, 8px); background: #1a1a1a;
     }
 
+    /* ── Slide 7: 프로젝트 이미지 뷰어 ── */
+    #slide7 { z-index: 0; background: #fff; }
+    #s7-img {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      object-fit: contain;
+      display: block;
+      transition: opacity 0.15s ease;
+    }
+    #s7-counter {
+      position: absolute; bottom: clamp(10px, 2.4vh, 26px); left: 50%;
+      transform: translateX(-50%);
+      font-size: clamp(9px, 0.73vw, 14px); font-weight: 600;
+      color: #bbb; letter-spacing: 0.08em; pointer-events: none;
+    }
+    #s7-prev, #s7-next {
+      position: absolute; top: 50%; transform: translateY(-50%);
+      width: clamp(32px, 3.33vw, 64px); height: clamp(32px, 3.33vw, 64px);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; opacity: 0; transition: opacity 0.2s;
+    }
+    #slide7:hover #s7-prev, #slide7:hover #s7-next { opacity: 1; }
+    #s7-prev { left: clamp(10px, 1.5vw, 28px); }
+    #s7-next { right: clamp(10px, 1.5vw, 28px); }
+    #s7-prev svg, #s7-next svg { width: 100%; height: 100%; }
+
     /* ── Transition canvas ── */
     #tx-canvas {
       position: absolute; inset: 0; z-index: 20;
@@ -739,6 +765,30 @@
       </div>
     </div>
 
+    <!-- Slide 7: 프로젝트 이미지 뷰어 01~63 -->
+    <div class="slide" id="slide7">
+      <img id="s7-img" src="" alt="" />
+      <div id="s7-counter"></div>
+      <div id="s7-prev" onclick="s7Step(-1)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6"/>
+        </svg>
+      </div>
+      <div id="s7-next" onclick="s7Step(1)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="9 18 15 12 9 6"/>
+        </svg>
+      </div>
+      <div class="s3-bottom-bar">
+        <div class="s3-tooltip" id="s7-tooltip" onclick="goTo(2)">
+          회사소개서의 다른 메뉴들도 확인하세요.&nbsp;&nbsp;&nbsp;&gt;
+        </div>
+        <div class="s3-nav-dots" onclick="goTo(2)">
+          <span></span><span></span>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -759,6 +809,7 @@ const slide3   = document.getElementById('slide3');
 const slide4   = document.getElementById('slide4');
 const slide5   = document.getElementById('slide5');
 const slide6   = document.getElementById('slide6');
+const slide7   = document.getElementById('slide7');
 
 let transitioning     = false;
 let currentSlide      = 1;
@@ -924,7 +975,7 @@ function edgePos(w, h) {
 
 /* ── Set slide z-indices ── */
 function setSlideZ(active) {
-  [slide1, slide2, slide3, slide4, slide5, slide6].forEach((s, i) => {
+  [slide1, slide2, slide3, slide4, slide5, slide6, slide7].forEach((s, i) => {
     s.style.zIndex = (i + 1 === active) ? 2 : 1;
   });
 }
@@ -939,11 +990,13 @@ function goTo(target) {
   stopS5Tooltip();
   stopS6Tooltip();
   stopS6();
+  stopS7Tooltip();
 
   /* 슬라이드 진입 전 bars 리셋 (crossfade 중 빈 화면 보장) */
   if (target === 4) buildS4Bars();
   if (target === 5) buildS5Bars();
   if (target === 6) buildS6();
+  if (target === 7) buildS7();
 
   /* slide 간 크로스페이드 전환 */
   const fadeMap = {
@@ -954,6 +1007,8 @@ function goTo(target) {
     '4-5': [slide4,slide5], '5-4': [slide5,slide4],
     '2-6': [slide2,slide6], '6-2': [slide6,slide2],
     '5-6': [slide5,slide6], '6-5': [slide6,slide5],
+    '6-7': [slide6,slide7], '7-6': [slide7,slide6],
+    '2-7': [slide2,slide7], '7-2': [slide7,slide2],
   };
   const fadeKey = `${currentSlide}-${target}`;
   if (fadeMap[fadeKey]) {
@@ -977,6 +1032,7 @@ function goTo(target) {
       if (target === 4) { startS4(); startS4Tooltip(); }
       if (target === 5) { startS5(); startS5Tooltip(); }
       if (target === 6) { startS6(); startS6Tooltip(); }
+      if (target === 7) { startS7(); }
     }, 520);
     return;
   }
@@ -1477,6 +1533,63 @@ function stopS6Tooltip() {
   if (s6TooltipInterval) { clearInterval(s6TooltipInterval); s6TooltipInterval = null; }
 }
 
+/* ── Slide 7: 이미지 뷰어 ── */
+const S7_TOTAL = 63;
+let s7Index = 1;
+let s7TooltipInterval = null;
+
+function s7Src(n) {
+  return (n < 10 ? '0' + n : '' + n) + '.png';
+}
+
+function buildS7() {
+  s7Index = 1;
+}
+
+function startS7() {
+  s7Index = 1;
+  s7SetImage(1);
+  startS7Tooltip();
+}
+
+function s7SetImage(n) {
+  s7Index = Math.max(1, Math.min(S7_TOTAL, n));
+  const img = document.getElementById('s7-img');
+  const counter = document.getElementById('s7-counter');
+  if (img) {
+    img.style.opacity = '0';
+    img.src = s7Src(s7Index);
+    img.onload = () => { img.style.opacity = '1'; };
+  }
+  if (counter) counter.textContent = s7Index + ' / ' + S7_TOTAL;
+  /* 다음 이미지 미리 로드 */
+  if (s7Index < S7_TOTAL) { const p = new Image(); p.src = s7Src(s7Index + 1); }
+}
+
+function s7Step(dir) {
+  const next = s7Index + dir;
+  if (next < 1) { goTo(6); return; }
+  if (next > S7_TOTAL) return;
+  s7SetImage(next);
+}
+
+function startS7Tooltip() {
+  const el = document.getElementById('s7-tooltip');
+  if (!el) return;
+  function cycle() {
+    el.classList.add('visible');
+    setTimeout(() => el.classList.remove('visible'), 2500);
+  }
+  cycle();
+  s7TooltipInterval = setInterval(cycle, 5000);
+}
+
+function stopS7Tooltip() {
+  const el = document.getElementById('s7-tooltip');
+  if (el) el.classList.remove('visible');
+  if (s7TooltipInterval) { clearInterval(s7TooltipInterval); s7TooltipInterval = null; }
+}
+
 /* ── Input ── */
 window.addEventListener('wheel', e => {
   if (e.deltaY >  30 && currentSlide === 1) goTo(2);
@@ -1484,11 +1597,14 @@ window.addEventListener('wheel', e => {
   if (e.deltaY >  30 && currentSlide === 3) goTo(4);
   if (e.deltaY >  30 && currentSlide === 4) goTo(5);
   if (e.deltaY >  30 && currentSlide === 5) goTo(6);
+  if (e.deltaY >  30 && currentSlide === 6) goTo(7);
+  if (e.deltaY >  30 && currentSlide === 7) s7Step(1);
   if (e.deltaY < -30 && currentSlide === 2) goTo(1);
   if (e.deltaY < -30 && currentSlide === 3) goTo(2);
   if (e.deltaY < -30 && currentSlide === 4) goTo(3);
   if (e.deltaY < -30 && currentSlide === 5) goTo(4);
   if (e.deltaY < -30 && currentSlide === 6) goTo(5);
+  if (e.deltaY < -30 && currentSlide === 7) s7Step(-1);
 }, { passive: true });
 
 let ty0 = 0;
@@ -1500,11 +1616,14 @@ window.addEventListener('touchend',   e => {
   if (dy >  40 && currentSlide === 3) goTo(4);
   if (dy >  40 && currentSlide === 4) goTo(5);
   if (dy >  40 && currentSlide === 5) goTo(6);
+  if (dy >  40 && currentSlide === 6) goTo(7);
+  if (dy >  40 && currentSlide === 7) s7Step(1);
   if (dy < -40 && currentSlide === 2) goTo(1);
   if (dy < -40 && currentSlide === 3) goTo(2);
   if (dy < -40 && currentSlide === 4) goTo(3);
   if (dy < -40 && currentSlide === 5) goTo(4);
   if (dy < -40 && currentSlide === 6) goTo(5);
+  if (dy < -40 && currentSlide === 7) s7Step(-1);
 }, { passive: true });
 
 window.addEventListener('keydown', e => {
@@ -1513,11 +1632,14 @@ window.addEventListener('keydown', e => {
   if ((e.key === 'ArrowDown' || e.key === 'PageDown') && currentSlide === 3) goTo(4);
   if ((e.key === 'ArrowDown' || e.key === 'PageDown') && currentSlide === 4) goTo(5);
   if ((e.key === 'ArrowDown' || e.key === 'PageDown') && currentSlide === 5) goTo(6);
+  if ((e.key === 'ArrowDown' || e.key === 'PageDown') && currentSlide === 6) goTo(7);
+  if ((e.key === 'ArrowDown' || e.key === 'PageDown' || e.key === 'ArrowRight') && currentSlide === 7) s7Step(1);
   if ((e.key === 'ArrowUp'   || e.key === 'PageUp')   && currentSlide === 2) goTo(1);
   if ((e.key === 'ArrowUp'   || e.key === 'PageUp')   && currentSlide === 3) goTo(2);
   if ((e.key === 'ArrowUp'   || e.key === 'PageUp')   && currentSlide === 4) goTo(3);
   if ((e.key === 'ArrowUp'   || e.key === 'PageUp')   && currentSlide === 5) goTo(4);
   if ((e.key === 'ArrowUp'   || e.key === 'PageUp')   && currentSlide === 6) goTo(5);
+  if ((e.key === 'ArrowUp'   || e.key === 'PageUp'   || e.key === 'ArrowLeft') && currentSlide === 7) s7Step(-1);
 });
 </script>
 </body>
