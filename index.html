@@ -991,6 +991,7 @@ function goTo(target) {
   stopS6Tooltip();
   stopS6();
   stopS7Tooltip();
+  if (currentSlide === 7) document.body.style.background = '#000';
 
   /* 슬라이드 진입 전 bars 리셋 (crossfade 중 빈 화면 보장) */
   if (target === 4) buildS4Bars();
@@ -1561,6 +1562,28 @@ function startS7() {
   startS7Tooltip();
 }
 
+function s7SampleBg(imgEl) {
+  try {
+    const c = document.createElement('canvas');
+    const size = 80;
+    c.width = c.height = size;
+    const cx = c.getContext('2d');
+    cx.drawImage(imgEl, 0, 0, size, size);
+    const pts = [
+      [0,0],[size-1,0],[0,size-1],[size-1,size-1],
+      [size>>1,0],[size>>1,size-1],[0,size>>1],[size-1,size>>1],
+      [size>>2,0],[size*3>>2,0],[size>>2,size-1],[size*3>>2,size-1]
+    ];
+    let r=0,g=0,b=0;
+    pts.forEach(([x,y]) => {
+      const d = cx.getImageData(x,y,1,1).data;
+      r+=d[0]; g+=d[1]; b+=d[2];
+    });
+    const n = pts.length;
+    return `rgb(${Math.round(r/n)},${Math.round(g/n)},${Math.round(b/n)})`;
+  } catch(e) { return '#1a1a1a'; }
+}
+
 function s7SetImage(n) {
   s7Index = Math.max(1, Math.min(S7_TOTAL, n));
   const img = document.getElementById('s7-img');
@@ -1568,10 +1591,12 @@ function s7SetImage(n) {
   if (img) {
     img.style.opacity = '0';
     img.src = s7Src(s7Index);
-    img.onload = () => { img.style.opacity = '1'; };
+    img.onload = () => {
+      img.style.opacity = '1';
+      document.body.style.background = s7SampleBg(img);
+    };
   }
   if (counter) counter.textContent = s7Index + ' / ' + S7_TOTAL;
-  /* 다음 이미지 미리 로드 */
   if (s7Index < S7_TOTAL) { const p = new Image(); p.src = s7Src(s7Index + 1); }
 }
 
