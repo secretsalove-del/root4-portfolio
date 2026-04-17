@@ -447,11 +447,11 @@
         <div class="toc-item">
           <p class="toc-label">회사 프로젝트</p>
           <div class="toc-sub">
-            <span>[ AI ]</span>
-            <span>[ 금융 ]</span>
-            <span>[ 서비스 ]</span>
-            <span>[ 프로모션 ]</span>
-            <span>[ 자동차 ]</span>
+            <span onclick="goToS7(2)"  style="cursor:pointer">[ AI ]</span>
+            <span onclick="goToS7(7)"  style="cursor:pointer">[ 금융 ]</span>
+            <span onclick="goToS7(21)" style="cursor:pointer">[ 서비스 ]</span>
+            <span onclick="goToS7(37)" style="cursor:pointer">[ 프로모션 ]</span>
+            <span onclick="goToS7(47)" style="cursor:pointer">[ 자동차 ]</span>
           </div>
         </div>
       </div>
@@ -1543,12 +1543,21 @@ function s7Src(n) {
 }
 
 function buildS7() {
-  s7Index = 1;
+  s7Index = s7StartAt;
+  s7StartAt = 1; // 다음 일반 진입을 위해 리셋
 }
 
+/* 목차에서 특정 이미지 번호로 바로 진입 */
+let s7StartAt = 1;
+function goToS7(imgIndex) {
+  if (transitioning) return;
+  s7StartAt = imgIndex;
+  goTo(7);
+}
+
+
 function startS7() {
-  s7Index = 1;
-  s7SetImage(1);
+  s7SetImage(s7Index); // buildS7에서 이미 s7Index 세팅됨
   startS7Tooltip();
 }
 
