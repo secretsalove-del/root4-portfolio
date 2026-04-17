@@ -1,0 +1,1524 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Root4 Company Profile</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body {
+      width: 100%; height: 100%;
+      overflow: hidden;
+      font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+      background: #000;
+    }
+
+    /* ── Content area: fills screen up to 1920×1080, black outside ── */
+    .viewport {
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: min(100vw, 1920px);
+      height: min(100vh, 1080px);
+      overflow: hidden;
+      background: #fff;
+    }
+
+    .slides { position: absolute; inset: 0; }
+
+    .slide {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      background: #fff;
+    }
+
+    /* ── Slide 1 ── */
+    #slide1 { z-index: 2; }
+
+    #slide1 .title {
+      font-size: clamp(24px, 5vw, 72px);
+      font-weight: 800; color: #3d3d3d; letter-spacing: -0.5px;
+    }
+    #slide1 .subtitle {
+      margin-top: clamp(8px, 1.2vw, 16px);
+      font-size: clamp(10px, 1.4vw, 18px);
+      font-weight: 600; color: #aaa; letter-spacing: 0.5px;
+    }
+    #slide1 .logo {
+      position: absolute; bottom: clamp(28px, 5vh, 64px); left: 50%;
+      transform: translateX(-50%);
+    }
+    #slide1 .logo img {
+      width: clamp(70px, 12vw, 160px);
+      height: auto;
+      display: block;
+    }
+
+    /* ── Slide 2 ── */
+    #slide2 { z-index: 1; }
+    #slide2 .toc { text-align: center; }
+    .toc-item {
+      position: relative;
+      cursor: pointer;
+      padding: 4px 0;
+    }
+    .toc-label {
+      font-size: clamp(15px, 3vw, 44px);
+      font-weight: 800; color: #3d3d3d;
+      line-height: 1.55;
+      transition: filter 0.4s ease, opacity 0.4s ease;
+    }
+    .toc-sub {
+      display: flex; justify-content: center; gap: clamp(12px, 2vw, 32px);
+      flex-wrap: wrap;
+      max-height: 0; opacity: 0; overflow: hidden;
+      transition: max-height 0.4s ease, opacity 0.4s ease, margin 0.4s ease;
+      margin-top: 0;
+    }
+    .toc-sub span {
+      font-size: clamp(10px, 1.3vw, 18px);
+      font-weight: 600; color: #3d3d3d;
+      white-space: nowrap; cursor: pointer;
+      transition: color 0.2s;
+    }
+    .toc-sub span:hover { color: #000; }
+
+    /* hover: blur siblings, show sub-items */
+    .toc:has(.toc-item:hover) .toc-item:not(:hover) .toc-label {
+      filter: blur(6px);
+      opacity: 0.45;
+    }
+    .toc-item:hover .toc-sub {
+      max-height: 60px; opacity: 1;
+      margin-top: clamp(4px, 0.8vw, 12px);
+    }
+
+    .dec-dot { position: absolute; width: 10px; height: 10px; background: #1a1a1a; }
+    .dot-tl { top: 17%; left: 30%; }
+    .dot-tr { top: 13%; right: 15%; }
+    .dot-ml { top: 62%; left: 10%; }
+    .dot-br { bottom: 20%; right: 22%; }
+
+    /* ── Slide 3: 주요연혁 ── */
+    #slide3 { z-index: 0; overflow: hidden; }
+
+    /* breadcrumb */
+    .s3-breadcrumb {
+      position: absolute;
+      left: clamp(20px, 5.2vw, 100px);
+      top: clamp(20px, 9.3vh, 100px);
+      display: flex; flex-direction: column; gap: clamp(3px, 0.7vh, 8px);
+    }
+    .s3-bc-parent {
+      font-size: clamp(9px, 0.83vw, 16px); font-weight: 600;
+      color: #999; letter-spacing: -0.03em;
+    }
+    .s3-bc-title {
+      font-size: clamp(11px, 1.04vw, 20px); font-weight: 600;
+      color: #000; letter-spacing: -0.03em;
+    }
+
+    /* timeline */
+    .s3-timeline {
+      position: absolute;
+      left: 50%; top: 50%;
+      transform: translate(-50%, calc(-50% + 7.87vh));
+      width: 89.6%; height: 69.4%;
+      display: flex; gap: 0;
+    }
+    .s3-col {
+      flex: 1; min-width: 0;
+      border-left: 1px solid rgba(0,0,0,0.1);
+      padding: 0 clamp(4px, 0.83vw, 16px);
+      display: flex; flex-direction: column;
+      justify-content: space-between;
+    }
+    .s3-col:first-child { }
+    .s3-col.current { border-left: 1px solid rgba(0,0,0,0.1); }
+    .s3-year {
+      font-size: clamp(16px, 2.6vw, 50px); font-weight: 700;
+      color: #000; opacity: 0.2;
+      line-height: 1.3; letter-spacing: -0.01em;
+      flex-shrink: 0;
+    }
+    .s3-year.current { opacity: 1; }
+    .s3-items {
+      list-style: disc; padding-left: clamp(10px, 1.25vw, 24px);
+      display: flex; flex-direction: column;
+      gap: clamp(2px, 0.93vh, 10px);
+    }
+    .s3-items li {
+      font-size: clamp(7px, 0.83vw, 16px);
+      color: #666; line-height: 1.8;
+      letter-spacing: -0.04em;
+    }
+    .s3-col.current .s3-items li { color: #000; }
+
+    /* bottom tooltip + logo */
+    .s3-bottom-bar {
+      position: absolute;
+      right: clamp(16px, 1.56vw, 30px);
+      bottom: clamp(0px, 2.6vh, 30px);
+      display: flex; align-items: center; gap: clamp(8px, 1vw, 16px);
+    }
+    .s3-tooltip {
+      background: #000; color: #fff;
+      font-size: clamp(7px, 0.625vw, 12px); font-weight: 600;
+      padding: 0 clamp(8px, 0.625vw, 12px);
+      height: clamp(14px, 2.04vh, 22px);
+      display: flex; align-items: center;
+      cursor: pointer; white-space: nowrap;
+      letter-spacing: -0.03em;
+      opacity: 0; transition: opacity 0.5s ease;
+      pointer-events: none;
+    }
+    .s3-tooltip.visible { opacity: 1; pointer-events: auto; }
+    .s2-back-tooltip { opacity: 1 !important; pointer-events: auto !important; cursor: pointer; }
+    .s3-nav-dots {
+      display: flex; flex-direction: column;
+      gap: 4px; cursor: pointer; align-self: center;
+    }
+    .s3-nav-dots span {
+      display: block;
+      width: clamp(5px, 0.42vw, 8px);
+      height: clamp(5px, 0.42vw, 8px);
+      background: #1a1a1a;
+    }
+
+    /* ── Slide 4: 조직 및 인력 현황 ── */
+    #slide4 { z-index: 0; overflow: hidden; }
+
+    .s4-breadcrumb {
+      position: absolute;
+      left: clamp(20px, 5.2vw, 100px);
+      top: clamp(20px, 9.3vh, 100px);
+      display: flex; flex-direction: column; gap: clamp(3px, 0.7vh, 8px);
+    }
+    .s4-bc-parent { font-size: clamp(9px, 0.83vw, 16px); font-weight: 600; color: #999; letter-spacing: -0.03em; }
+    .s4-bc-title  { font-size: clamp(11px, 1.04vw, 20px); font-weight: 600; color: #000; letter-spacing: -0.03em; }
+
+    .s4-bars {
+      position: absolute;
+      left: 0; right: 0; top: 0; bottom: 0;
+      pointer-events: none;
+    }
+    .s4-bar {
+      position: absolute;
+      will-change: transform;
+    }
+    .s4-bar-title {
+      font-size: clamp(16px, 2.94vw, 56px);
+      font-weight: 600; color: #fff;
+      letter-spacing: -0.03em;
+      white-space: nowrap;
+    }
+    .s4-bar-count {
+      font-size: clamp(16px, 2.94vw, 56px);
+      font-weight: 600; color: #fff;
+      letter-spacing: -0.03em;
+    }
+
+    /* bottom nav same as slide3 */
+    #slide4 .s3-bottom-bar {
+      position: absolute;
+      right: clamp(16px, 1.56vw, 30px);
+      bottom: clamp(0px, 2.6vh, 30px);
+      display: flex; align-items: center; gap: clamp(8px, 1vw, 16px);
+    }
+    #slide4 .s3-tooltip {
+      background: #000; color: #fff;
+      font-size: clamp(7px, 0.625vw, 12px); font-weight: 600;
+      padding: 0 clamp(8px, 0.625vw, 12px);
+      height: clamp(14px, 2.04vh, 22px);
+      display: flex; align-items: center;
+      cursor: pointer; white-space: nowrap;
+      letter-spacing: -0.03em;
+      opacity: 0; transition: opacity 0.5s ease;
+      pointer-events: none;
+    }
+    #slide4 .s3-tooltip.visible { opacity: 1; pointer-events: auto; }
+    #slide4 .s3-nav-dots {
+      display: flex; flex-direction: column;
+      gap: 4px; cursor: pointer;
+    }
+    #slide4 .s3-nav-dots span {
+      display: block;
+      width: clamp(5px, 0.42vw, 8px);
+      height: clamp(5px, 0.42vw, 8px);
+      background: #1a1a1a;
+    }
+
+    /* ── Slide 5: 프로젝트 파트너 ── */
+    #slide5 { z-index: 0; overflow: hidden; }
+    .s5-sub {
+      position: absolute;
+      left: clamp(50px, 5.2vw, 100px); top: clamp(80px, 17.41vh, 188px);
+      font-weight: 500; font-size: clamp(10px, 0.9375vw, 18px);
+      color: #7f7f7f; letter-spacing: -0.03em; line-height: 1.4;
+    }
+    .s5-sub p { margin: 0; }
+    .s5-count {
+      position: absolute; right: clamp(20px, 7.29vw, 140px); top: 34.72%;
+      font-weight: 700; display: flex; align-items: baseline;
+      opacity: 0; transition: opacity 0.4s ease;
+    }
+    .s5-count-num  { font-size: clamp(28px, 3.125vw, 60px); letter-spacing: -0.011em; }
+    .s5-count-plus { font-size: clamp(12px, 1.14vw, 22px);  letter-spacing: -0.011em; }
+    .s5-line { position: absolute; height: 2px; background: #999; top: 42.69%; width: 0; opacity: 1; }
+    .s5-line-left  { left: 0; }
+    .s5-line-right { right: 0; }
+    .s5-bars-wrap {
+      position: absolute; left: 0; right: 0;
+      top: 33.06%; height: 19.26%;
+      overflow: hidden;
+    }
+    .s5-bar { position: absolute; }
+    .s5-logos-1, .s5-logos-2 {
+      position: absolute; display: flex; align-items: center;
+      gap: clamp(16px, 4.17vw, 80px); opacity: 0;
+    }
+    .s5-logos-1 { left: 6.615%; top: 71.11%; }
+    .s5-logos-2 { left: 50%; top: 80.37%; transform: translateX(-50%); }
+    .s5-logo { display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    #slide5 .s3-bottom-bar {
+      position: absolute; right: clamp(16px, 1.56vw, 30px); bottom: clamp(0px, 2.6vh, 30px);
+      display: flex; align-items: center; gap: clamp(8px, 1vw, 16px);
+    }
+    #slide5 .s3-tooltip {
+      background: #000; color: #fff;
+      font-size: clamp(7px, 0.625vw, 12px); font-weight: 600;
+      padding: 0 clamp(8px, 0.625vw, 12px); height: clamp(14px, 2.04vh, 22px);
+      display: flex; align-items: center; cursor: pointer; white-space: nowrap;
+      letter-spacing: -0.03em; opacity: 0; transition: opacity 0.5s ease; pointer-events: none;
+    }
+    #slide5 .s3-tooltip.visible { opacity: 1; pointer-events: auto; }
+    #slide5 .s3-nav-dots { display: flex; flex-direction: column; gap: 4px; cursor: pointer; }
+    #slide5 .s3-nav-dots span {
+      display: block; width: clamp(5px, 0.42vw, 8px);
+      height: clamp(5px, 0.42vw, 8px); background: #1a1a1a;
+    }
+
+    /* ── Slide 6: 관련분야 보유기술 현황 ── */
+    #slide6 { z-index: 0; overflow: hidden; }
+    .s6-text {
+      position: absolute;
+      left: clamp(50px, 5.21vw, 100px);
+      top: clamp(110px, 20.56vh, 222px);
+      display: flex; align-items: flex-start;
+      gap: clamp(50px, 5.94vw, 114px);
+    }
+    .s6-role-title {
+      font-size: clamp(17px, 1.77vw, 34px);
+      font-weight: 700; color: #222;
+      letter-spacing: -0.03em; line-height: 1.5;
+      white-space: nowrap; margin: 0 0 clamp(18px, 3.33vh, 36px);
+    }
+    .s6-divider {
+      height: 1px; background: #000;
+      margin-bottom: clamp(18px, 3.33vh, 36px);
+    }
+    .s6-list {
+      font-size: clamp(10px, 1.04vw, 20px);
+      font-weight: 500; color: #222;
+      letter-spacing: -0.03em;
+      display: flex; flex-direction: column;
+      gap: clamp(9px, 1.67vh, 18px);
+    }
+    .s6-list + .s6-list { margin-top: clamp(30px, 6.67vh, 72px); }
+    .s6-list p { margin: 0; white-space: nowrap; }
+    .s6-cols {
+      position: absolute;
+      left: 46.875%; right: 5.21%;
+      top: 0; bottom: 0;
+      display: flex; gap: clamp(5px, 0.52vw, 10px);
+      overflow: hidden;
+    }
+    .s6-col { flex: 1; overflow: hidden; position: relative; }
+    .s6-col-inner {
+      position: absolute; left: 0; right: 0; top: 0;
+      display: flex; flex-direction: column;
+      gap: clamp(5px, 0.93vh, 10px);
+      will-change: transform;
+    }
+    .s6-box {
+      width: 100%; aspect-ratio: 1;
+      background: #f5f5f5; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden; position: relative;
+    }
+    .s6-box img { object-fit: contain; pointer-events: none; display: block; }
+    #slide6 .s3-bottom-bar {
+      position: absolute; right: clamp(16px, 1.56vw, 30px); bottom: clamp(0px, 2.6vh, 30px);
+      display: flex; align-items: center; gap: clamp(8px, 1vw, 16px);
+    }
+    #slide6 .s3-tooltip {
+      background: #000; color: #fff;
+      font-size: clamp(7px, 0.625vw, 12px); font-weight: 600;
+      padding: 0 clamp(8px, 0.625vw, 12px); height: clamp(14px, 2.04vh, 22px);
+      display: flex; align-items: center; cursor: pointer; white-space: nowrap;
+      letter-spacing: -0.03em; opacity: 0; transition: opacity 0.5s ease; pointer-events: none;
+    }
+    #slide6 .s3-tooltip.visible { opacity: 1; pointer-events: auto; }
+    #slide6 .s3-nav-dots { display: flex; flex-direction: column; gap: 4px; cursor: pointer; }
+    #slide6 .s3-nav-dots span {
+      display: block; width: clamp(5px, 0.42vw, 8px); height: clamp(5px, 0.42vw, 8px); background: #1a1a1a;
+    }
+
+    /* ── Transition canvas ── */
+    #tx-canvas {
+      position: absolute; inset: 0; z-index: 20;
+      pointer-events: none; display: none;
+    }
+
+    /* ── Mobile adjustments ── */
+    @media (max-width: 600px) {
+      #slide1 .title { font-size: 42px; }
+      #slide1 .subtitle { font-size: 16px; margin-top: 10px; }
+      #slide1 .logo { font-size: 18px; bottom: 24px; gap: 8px; }
+      #slide1 .logo::before { width: 5px; height: 5px; }
+      #slide2 .toc-label { font-size: 33px; }
+      .dec-dot { width: 7px; height: 7px; }
+    }
+
+    @media (max-width: 400px) {
+      #slide1 .title { font-size: 33px; }
+      #slide1 .subtitle { font-size: 13px; }
+      #slide2 .toc-label { font-size: 27px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="viewport" id="viewport">
+  <canvas id="tx-canvas"></canvas>
+
+  <div class="slides">
+    <div class="slide" id="slide1">
+      <p class="title">Company Profile</p>
+      <p class="subtitle">Root4 Where Ideas Scale Into Experience</p>
+      <div class="logo">
+        <img src="root4-logo.svg" alt="ROOT4">
+      </div>
+    </div>
+
+    <div class="slide" id="slide2">
+      <div class="dec-dot dot-tl"></div>
+      <div class="dec-dot dot-tr"></div>
+      <div class="dec-dot dot-ml"></div>
+      <div class="dec-dot dot-br"></div>
+      <div class="toc">
+        <div class="toc-item">
+          <p class="toc-label">회사 연혁 및 개요</p>
+          <div class="toc-sub">
+            <span onclick="goTo(3)" style="cursor:pointer">[ 주요연혁 ]</span>
+            <span onclick="goTo(4)" style="cursor:pointer">[ 조직및 인력 현황 ]</span>
+            <span onclick="goTo(5)" style="cursor:pointer">[ 프로젝트 파트너 ]</span>
+            <span onclick="goTo(6)" style="cursor:pointer">[ 관련분야 보유기술 현황 ]</span>
+          </div>
+        </div>
+        <div class="toc-item">
+          <p class="toc-label">회사 프로젝트</p>
+          <div class="toc-sub">
+            <span>[ AI ]</span>
+            <span>[ 금융 ]</span>
+            <span>[ 서비스 ]</span>
+            <span>[ 프로모션 ]</span>
+            <span>[ 자동차 ]</span>
+          </div>
+        </div>
+      </div>
+      <div class="s3-bottom-bar">
+        <div class="s3-tooltip s2-back-tooltip" onclick="goTo(prevSlide)">
+          이전 화면으로 돌아가기&nbsp;&nbsp;&nbsp;&gt;
+        </div>
+        <div class="s3-nav-dots" onclick="goTo(prevSlide)">
+          <span></span><span></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="slide" id="slide3">
+      <div class="s3-breadcrumb">
+        <span class="s3-bc-parent">회사 연혁 및 개요</span>
+        <span class="s3-bc-title">주요연혁</span>
+      </div>
+      <div class="s3-timeline">
+        <div class="s3-col">
+          <div class="s3-year">2018-21</div>
+          <ul class="s3-items">
+            <li>법인 루트4 설립</li>
+            <li>현대 모비스 연간 협력업체 선정</li>
+            <li>OTT서비스 STB 구축 프로젝트</li>
+            <li>GS커넥트 앱 구축 프로젝트</li>
+            <li>다수의 AVN/HUD 프로젝트</li>
+            <li>코메이크 연간 운영 프로젝트</li>
+            <li>IPTV 홈트 서비스 디자인 프로젝트</li>
+            <li>우리동네 딜리버리 구축 프로젝트</li>
+            <li>소노시즌 개편/구축 프로젝트</li>
+            <li>AR 플랫폼 개편 프로젝트</li>
+            <li>HUD 및 AR HUD 프로젝트</li>
+          </ul>
+        </div>
+        <div class="s3-col">
+          <div class="s3-year">2022</div>
+          <ul class="s3-items">
+            <li>강남구 논현동으로 확장 이전</li>
+            <li>현대로템 제안 프로젝트</li>
+            <li>OTT서비스 연간 운영 프로젝트</li>
+            <li>UX 디자인 가이드 프로젝트</li>
+            <li>News 모바일 앱 제작 프로젝트</li>
+            <li>환경감수성 서비스 앱 디자인 프로젝트</li>
+            <li>NFT 서비스 앱 디자인 프로젝트</li>
+            <li>어워드 영상 제작 프로젝트</li>
+          </ul>
+        </div>
+        <div class="s3-col">
+          <div class="s3-year">2023</div>
+          <ul class="s3-items">
+            <li>카카오뱅크 챗봇 영상 제작(연간)</li>
+            <li>42dot 관제 시스템 구축 기획/디자인 프로젝트</li>
+            <li>던롭스포츠코리아 데이터레이크 및 통합 브랜드 홈페이지 구축</li>
+            <li>현대오토에버 홈페이지 제안 프로젝트</li>
+            <li>TV 앱 UI/UX 고도화 및 Mass 캐치업 개발</li>
+            <li>LG전자 고객 분석 및 이벤트 추천 앱 디자인</li>
+            <li>LG전자 채널 홈앱 - Fast 서비스 구축</li>
+          </ul>
+        </div>
+        <div class="s3-col">
+          <div class="s3-year">2024</div>
+          <ul class="s3-items">
+            <li>유비칸 FMS UXUI개편 프로젝트</li>
+            <li>금융권 MTS 재구축 프로젝트</li>
+            <li>LG전자 채널 홈앱/CMP Admin 개선 및 웹서비스 개편 프로젝트</li>
+            <li>AI 스튜디오 웹사이트 개편</li>
+            <li>LG AI 홈케어 프로그램 UX/UI</li>
+            <li>LG전자 AI기반 생성이미지 활용 홈페이지 제작</li>
+            <li>현대 오토에버 ECV/HTWO 개편</li>
+            <li>현대자동차 선행 컨셉 프로토타입 프로젝트</li>
+            <li>KOVO 통합스토어 개편 프로젝트</li>
+            <li>TV 및 OTT 스타일 가이드 및 프로모션 운영 프로젝트</li>
+          </ul>
+        </div>
+        <div class="s3-col">
+          <div class="s3-year">2025</div>
+          <ul class="s3-items">
+            <li>유비칸 FMS UXUI개편 프로젝트</li>
+            <li>금융권 MTS 재구축 프로젝트</li>
+            <li>LG전자 채널 홈앱/CMP Admin 개선 및 웹서비스 개편 프로젝트</li>
+            <li>AI 스튜디오 웹사이트 개편</li>
+            <li>LG AI 홈케어 프로그램 UX/UI</li>
+            <li>LG전자 AI기반 생성이미지 활용 홈페이지 제작</li>
+            <li>현대 오토에버 ECV/HTWO 개편</li>
+            <li>현대자동차 선행 컨셉 프로토타입 프로젝트</li>
+            <li>KOVO 통합스토어 개편 프로젝트</li>
+            <li>TV 및 OTT 스타일 가이드 및 프로모션 운영 프로젝트</li>
+          </ul>
+        </div>
+        <div class="s3-col current">
+          <div class="s3-year current">2026</div>
+          <ul class="s3-items">
+            <li>SKT 에이닷 비즈 사이트 2026년 운영 프로젝트</li>
+            <li>SKT 에이닷 비즈 에이전트 빌더 고도화 2026년 개편 프로젝트</li>
+            <li>LG전자 채널 홈앱/CMP Admin 개선 및 웹서비스 운영 프로젝트</li>
+            <li>카카오엔터 베리즈 프로모션 디자인 제작 및 수정 운영 프로젝트</li>
+            <li>카카오엔터 Melon 프로모션 디자인 제작 및 수정 운영 프로젝트</li>
+          </ul>
+        </div>
+      </div>
+      <div class="s3-bottom-bar">
+        <div class="s3-tooltip" id="s3-tooltip" onclick="goTo(2)">
+          회사소개서의 다른 메뉴들도 확인하세요.&nbsp;&nbsp;&nbsp;&gt;
+        </div>
+        <div class="s3-nav-dots" id="s3-nav-dots" onclick="goTo(2)">
+          <span></span><span></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 4: 조직 및 인력 현황 -->
+    <div class="slide" id="slide4">
+      <div class="s4-breadcrumb">
+        <span class="s4-bc-parent">회사 연혁 및 개요</span>
+        <span class="s4-bc-title">조직 및 인력 현황</span>
+      </div>
+      <div class="s4-bars" id="s4-bars">
+        <!-- bars injected by JS -->
+      </div>
+      <div class="s3-bottom-bar">
+        <div class="s3-tooltip" id="s4-tooltip" onclick="goTo(2)">
+          회사소개서의 다른 메뉴들도 확인하세요.&nbsp;&nbsp;&nbsp;&gt;
+        </div>
+        <div class="s3-nav-dots" onclick="goTo(2)">
+          <span></span><span></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 5: 프로젝트 파트너 -->
+    <div class="slide" id="slide5">
+      <div class="s4-breadcrumb">
+        <span class="s4-bc-parent">회사 연혁 및 개요</span>
+        <span class="s4-bc-title">프로젝트 파트너</span>
+      </div>
+      <div class="s5-sub">
+        <p>다양한 파트너들과 협업하며</p>
+        <p>프로젝트를 만들어가고 있습니다</p>
+      </div>
+      <div class="s5-count" id="s5-count">
+        <span class="s5-count-num">16</span><span class="s5-count-plus">+</span>
+      </div>
+      <div class="s5-line s5-line-left"  id="s5-line-left"></div>
+      <div class="s5-line s5-line-right" id="s5-line-right"></div>
+      <div class="s5-bars-wrap" id="s5-bars-wrap"></div>
+
+      <!-- logo row 1 -->
+      <div class="s5-logos-1" id="s5-logos-1">
+        <!-- SKT -->
+        <div class="s5-logo" style="height:clamp(33px,6.11vh,66px);">
+          <img src="https://www.figma.com/api/mcp/asset/9b065319-3913-4987-8569-5a167efa27c6"
+               style="height:100%;width:auto;display:block;filter:brightness(0);">
+        </div>
+        <!-- SK broadband -->
+        <div class="s5-logo" style="height:clamp(32px,5.93vh,64px);">
+          <img src="https://www.figma.com/api/mcp/asset/981e6a3c-0f83-46be-8dd4-08725d6688dd"
+               style="height:100%;width:auto;display:block;">
+        </div>
+        <!-- Kakao Entertainment (cropped) -->
+        <div class="s5-logo" style="width:clamp(55px,5.73vw,110px);height:clamp(30px,5.56vh,60px);overflow:hidden;position:relative;">
+          <img src="https://www.figma.com/api/mcp/asset/5985352e-3bb5-49e5-835b-ca65f33da0ef"
+               style="position:absolute;width:327.78%;height:343.09%;left:-114.21%;top:-110.62%;max-width:none;pointer-events:none;">
+        </div>
+        <!-- kakaobank -->
+        <div class="s5-logo" style="height:clamp(29px,5.37vh,58px);">
+          <img src="https://www.figma.com/api/mcp/asset/a2ea39e1-039f-4263-929e-3b44a04b5acd"
+               style="height:100%;width:auto;display:block;">
+        </div>
+        <!-- Hyundai Card -->
+        <div class="s5-logo" style="height:clamp(20px,3.70vh,40px);">
+          <img src="https://www.figma.com/api/mcp/asset/ccfa8b02-c096-4429-b14b-fdd70e2be4e8"
+               style="height:100%;width:auto;display:block;">
+        </div>
+        <!-- Hyundai Mobis -->
+        <div class="s5-logo" style="height:clamp(25px,4.72vh,51px);">
+          <img src="https://www.figma.com/api/mcp/asset/756d35dc-9c3d-4850-bdcc-417ae3b936e7"
+               style="height:100%;width:auto;display:block;">
+        </div>
+        <!-- HYUNDAI (cropped) -->
+        <div class="s5-logo" style="width:clamp(95px,9.84vw,189px);height:clamp(14px,2.59vh,28px);overflow:hidden;position:relative;">
+          <img src="https://www.figma.com/api/mcp/asset/e9703424-806c-4879-bdde-ee08a76d8009"
+               style="position:absolute;width:110.2%;height:280.21%;left:-4.08%;top:-90.11%;max-width:none;pointer-events:none;">
+        </div>
+      </div>
+
+      <!-- logo row 2 -->
+      <div class="s5-logos-2" id="s5-logos-2">
+        <!-- 42dot (SVG assembly) -->
+        <div class="s5-logo" style="width:clamp(63px,6.58vw,126px);height:clamp(17px,3.21vh,35px);position:relative;overflow:hidden;">
+          <div style="position:absolute;top:42.26%;right:80.67%;bottom:1.4%;left:15.58%;">
+            <img src="https://www.figma.com/api/mcp/asset/440aa178-96e8-4b6c-abed-6a7ad0230046" style="width:100%;height:100%;max-width:none;display:block;">
+          </div>
+          <div style="position:absolute;top:0;right:83.75%;bottom:15.49%;left:0;">
+            <img src="https://www.figma.com/api/mcp/asset/68e6f5eb-34b5-4c1a-ab2e-18a00d57d4b7" style="width:100%;height:100%;max-width:none;display:block;">
+          </div>
+          <div style="position:absolute;top:84.52%;right:58.15%;bottom:1.4%;left:23.08%;">
+            <img src="https://www.figma.com/api/mcp/asset/0e1ca82a-9c68-42a6-92bf-e65b2acc004e" style="width:100%;height:100%;max-width:none;display:block;">
+          </div>
+          <div style="position:absolute;top:0;right:59.55%;bottom:29.58%;left:23.94%;">
+            <img src="https://www.figma.com/api/mcp/asset/4e3d6a1c-bb04-42a1-9ccf-b381014df45f" style="width:100%;height:100%;max-width:none;display:block;">
+          </div>
+          <div style="position:absolute;top:8.45%;right:35.37%;bottom:0;left:45.98%;">
+            <img src="https://www.figma.com/api/mcp/asset/b0bbc669-69da-4b0d-bcd2-d35fad0d6056" style="width:100%;height:100%;max-width:none;display:block;">
+          </div>
+          <div style="position:absolute;top:29.58%;right:13.98%;bottom:0;left:67.26%;">
+            <img src="https://www.figma.com/api/mcp/asset/51aed72c-8d08-42bb-8219-355cc23a7708" style="width:100%;height:100%;max-width:none;display:block;">
+          </div>
+          <div style="position:absolute;top:8.45%;right:0.28%;bottom:1.41%;left:86.59%;">
+            <img src="https://www.figma.com/api/mcp/asset/b34adfb9-3895-4118-b459-2d413e008184" style="width:100%;height:100%;max-width:none;display:block;">
+          </div>
+        </div>
+        <!-- ANYACTIVE -->
+        <div class="s5-logo" style="height:clamp(18px,3.43vh,37px);">
+          <img src="https://www.figma.com/api/mcp/asset/c9a9ad79-897d-45c4-8419-15097b24faef"
+               style="height:100%;width:auto;display:block;">
+        </div>
+        <!-- Hyconsoft -->
+        <div class="s5-logo" style="height:clamp(30px,5.65vh,61px);">
+          <img src="https://www.figma.com/api/mcp/asset/fb168f6e-55eb-4d91-9cb2-ca516233f47b"
+               style="height:100%;width:auto;display:block;">
+        </div>
+        <!-- dflux -->
+        <div class="s5-logo" style="height:clamp(43px,8.06vh,87px);">
+          <img src="https://www.figma.com/api/mcp/asset/218fd2de-7456-4419-9ef4-3fa4e6695208"
+               style="height:100%;width:auto;display:block;">
+        </div>
+        <!-- GS리테일 -->
+        <div class="s5-logo" style="height:clamp(19px,3.52vh,38px);">
+          <img src="https://www.figma.com/api/mcp/asset/85f5aa46-b45b-4f8c-abd8-713cf8086676"
+               style="height:100%;width:auto;display:block;">
+        </div>
+      </div>
+
+      <div class="s3-bottom-bar">
+        <div class="s3-tooltip" id="s5-tooltip" onclick="goTo(2)">
+          회사소개서의 다른 메뉴들도 확인하세요.&nbsp;&nbsp;&nbsp;&gt;
+        </div>
+        <div class="s3-nav-dots" onclick="goTo(2)">
+          <span></span><span></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 6: 관련분야 보유기술 현황 -->
+    <div class="slide" id="slide6">
+      <div class="s4-breadcrumb">
+        <span class="s4-bc-parent">회사 연혁 및 개요</span>
+        <span class="s4-bc-title">관련분야 보유기술 현황</span>
+      </div>
+
+      <div class="s6-text">
+        <!-- UX Planner -->
+        <div class="s6-role">
+          <p class="s6-role-title">UX Planner</p>
+          <div class="s6-divider" style="width:clamp(107px,11.15vw,214px);"></div>
+          <div class="s6-list">
+            <p>UX/UI Strategy</p>
+            <p>UX/UI Consulting</p>
+            <p>UX/UI Writing</p>
+            <p>UX/UI Wireframe</p>
+            <p>UX/UI Prototype</p>
+          </div>
+          <div class="s6-list">
+            <p>PowerPoint</p>
+            <p>ChatGPT</p>
+            <p>Google Gemini</p>
+            <p>Figma</p>
+            <p>Slack</p>
+            <p>Jira</p>
+            <p>Confluence</p>
+            <p>Google Workspace</p>
+          </div>
+        </div>
+        <!-- UX/UI Designer -->
+        <div class="s6-role">
+          <p class="s6-role-title">UX/UI Designer</p>
+          <div class="s6-divider" style="width:clamp(130px,13.49vw,259px);"></div>
+          <div class="s6-list">
+            <p>UX/UI Strategy</p>
+            <p>그래픽 디자인</p>
+            <p>2D&amp;3D 모션 그래픽</p>
+            <p>프로모션 디자인</p>
+            <p>UI Prototype</p>
+          </div>
+          <div class="s6-list">
+            <p>Figma</p>
+            <p>Framer</p>
+            <p>ChatGPT</p>
+            <p>Google Gemini</p>
+            <p>Claude</p>
+            <p>PowerPoint</p>
+            <p>Slack</p>
+            <p>Jira</p>
+            <p>Confluence</p>
+            <p>Google Workspace</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Scrolling tool icon columns (built by JS) -->
+      <div class="s6-cols" id="s6-cols"></div>
+
+      <div class="s3-bottom-bar">
+        <div class="s3-tooltip" id="s6-tooltip" onclick="goTo(2)">
+          회사소개서의 다른 메뉴들도 확인하세요.&nbsp;&nbsp;&nbsp;&gt;
+        </div>
+        <div class="s3-nav-dots" onclick="goTo(2)">
+          <span></span><span></span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* ── constants ── */
+const TILE         = 10;
+const MAX_P        = 2200;
+const SCATTER_DUR  = 620;
+const ASSEMBLE_DUR = 820;
+const BRIGHT_LIMIT = 210;
+
+const viewport = document.getElementById('viewport');
+const canvas   = document.getElementById('tx-canvas');
+const ctx      = canvas.getContext('2d');
+const slide1   = document.getElementById('slide1');
+const slide2   = document.getElementById('slide2');
+const slide3   = document.getElementById('slide3');
+const slide4   = document.getElementById('slide4');
+const slide5   = document.getElementById('slide5');
+const slide6   = document.getElementById('slide6');
+
+let transitioning     = false;
+let currentSlide      = 1;
+let prevSlide         = 1;
+let tooltipInterval   = null;
+let s5TooltipInterval = null;
+let s6TooltipInterval = null;
+
+const clamp   = (v, a, b) => Math.max(a, Math.min(b, v));
+const lerp    = (a, b, t) => a + (b - a) * t;
+const easeIn  = t => t * t * t;
+const easeOut = t => 1 - (1 - t) ** 3;
+
+/* ── get viewport actual size ── */
+function getVP() {
+  const r = viewport.getBoundingClientRect();
+  return { w: Math.round(r.width), h: Math.round(r.height) };
+}
+
+/* ── Canvas renderers ── */
+function drawSlide1(c, w, h) {
+  c.fillStyle = '#fff';
+  c.fillRect(0, 0, w, h);
+
+  const titleSz = clamp(w * 0.05, 24, 72);
+  const subSz   = clamp(w * 0.014, 10, 18);
+  const logoSz  = clamp(w * 0.015, 11, 20);
+
+  const titleLH = titleSz * 1.2;
+  const subLH   = subSz * 1.2;
+  const gap     = clamp(w * 0.012, 8, 16);
+  const blockH  = titleLH + gap + subLH;
+  const topY    = (h - blockH) / 2;
+
+  c.textAlign    = 'center';
+  c.textBaseline = 'top';
+
+  c.font      = `800 ${titleSz}px 'Apple SD Gothic Neo','Noto Sans KR',sans-serif`;
+  c.fillStyle = '#3d3d3d';
+  c.fillText('Company Profile', w / 2, topY + (titleLH - titleSz) / 2);
+
+  c.font      = `600 ${subSz}px 'Apple SD Gothic Neo','Noto Sans KR',sans-serif`;
+  c.fillStyle = '#aaaaaa';
+  c.fillText('Root4 Where Ideas Scale Into Experience',
+             w / 2, topY + titleLH + gap + (subLH - subSz) / 2);
+
+  const logoBot = clamp(h * 0.04, 20, 48);
+  const logoY   = h - logoBot;
+  c.font         = `700 ${logoSz}px 'Apple SD Gothic Neo','Noto Sans KR',sans-serif`;
+  c.fillStyle    = '#1a1a1a';
+  c.textBaseline = 'middle';
+  const tw       = c.measureText('ROOT4').width;
+  const dotSz    = 5;
+  const dotGap   = 4;
+  const total    = dotSz + 10 + tw;
+  const lx       = w / 2 - total / 2;
+  c.fillRect(lx, logoY - dotSz - dotGap / 2, dotSz, dotSz);
+  c.fillRect(lx, logoY + dotGap / 2,          dotSz, dotSz);
+  c.fillText('ROOT4', lx + dotSz + 10 + tw / 2, logoY);
+}
+
+function drawSlide2(c, w, h) {
+  c.fillStyle = '#fff';
+  c.fillRect(0, 0, w, h);
+
+  const fz    = clamp(w * 0.03, 15, 44);
+  const lineH = fz * 1.55;
+
+  c.font         = `800 ${fz}px 'Apple SD Gothic Neo','Noto Sans KR',sans-serif`;
+  c.fillStyle    = '#3d3d3d';
+  c.textAlign    = 'center';
+  c.textBaseline = 'middle';
+
+  c.fillText('회사 연혁 및 개요', w / 2, h / 2 - lineH / 2);
+  c.fillText('회사 프로젝트',     w / 2, h / 2 + lineH / 2);
+}
+
+function drawSlide3(c, w, h) {
+  c.fillStyle = '#fff';
+  c.fillRect(0, 0, w, h);
+
+  const padX  = clamp(w * 0.04, 20, 72);
+  const padY  = clamp(h * 0.04, 20, 56);
+  const bcSz  = clamp(w * 0.02, 14, 28);
+
+  c.font         = `800 ${bcSz}px 'Apple SD Gothic Neo','Noto Sans KR',sans-serif`;
+  c.fillStyle    = '#1a1a1a';
+  c.textAlign    = 'left';
+  c.textBaseline = 'top';
+  c.fillText('주요연혁', padX, padY);
+
+  const years  = ['2018-21', '2022', '2023', '2024', '2025', '2026'];
+  const colW   = (w - padX * 2) / 6;
+  const yearSz = clamp(w * 0.03, 18, 46);
+  const yearY  = padY + bcSz * 2.2;
+
+  c.font         = `800 ${yearSz}px 'Apple SD Gothic Neo','Noto Sans KR',sans-serif`;
+  c.textBaseline = 'top';
+  years.forEach((yr, i) => {
+    c.fillStyle = i === 5 ? '#1a1a1a' : '#d0d0d0';
+    c.fillText(yr, padX + colW * i, yearY);
+  });
+}
+
+function renderSlide(n, w, h) {
+  const off = document.createElement('canvas');
+  off.width = w; off.height = h;
+  const c = off.getContext('2d');
+  if (n === 1) drawSlide1(c, w, h);
+  else if (n === 2) drawSlide2(c, w, h);
+  else drawSlide3(c, w, h);
+  return c.getImageData(0, 0, w, h);
+}
+
+/* ── Tooltip cycle for slide3 ── */
+function startTooltip() {
+  const el = document.getElementById('s3-tooltip');
+  if (!el) return;
+  function cycle() {
+    el.classList.add('visible');
+    setTimeout(() => el.classList.remove('visible'), 2500);
+  }
+  cycle();
+  tooltipInterval = setInterval(cycle, 5000);
+}
+
+function stopTooltip() {
+  const el = document.getElementById('s3-tooltip');
+  if (el) el.classList.remove('visible');
+  if (tooltipInterval) { clearInterval(tooltipInterval); tooltipInterval = null; }
+}
+
+/* ── Tile sampler ── */
+function sampleTiles(img, w, h) {
+  const out = [];
+  for (let y = 0; y + TILE <= h; y += TILE) {
+    for (let x = 0; x + TILE <= w; x += TILE) {
+      const cx = x + (TILE >> 1), cy = y + (TILE >> 1);
+      const i  = (cy * w + cx) * 4;
+      const br = (img.data[i] + img.data[i + 1] + img.data[i + 2]) / 3;
+      if (br < BRIGHT_LIMIT)
+        out.push({ x, y, r: img.data[i], g: img.data[i + 1], b: img.data[i + 2] });
+    }
+  }
+  return out;
+}
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = (Math.random() * (i + 1)) | 0;
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function edgePos(w, h) {
+  const s = (Math.random() * 4) | 0;
+  return s === 0 ? [Math.random() * w, -TILE * 3]
+       : s === 1 ? [w + TILE * 3,      Math.random() * h]
+       : s === 2 ? [Math.random() * w, h + TILE * 3]
+                 : [-TILE * 3,         Math.random() * h];
+}
+
+/* ── Set slide z-indices ── */
+function setSlideZ(active) {
+  [slide1, slide2, slide3, slide4, slide5, slide6].forEach((s, i) => {
+    s.style.zIndex = (i + 1 === active) ? 2 : 1;
+  });
+}
+
+/* ── Transition ── */
+function goTo(target) {
+  if (transitioning || target === currentSlide) return;
+  transitioning = true;
+
+  stopTooltip();
+  stopS4Tooltip();
+  stopS5Tooltip();
+  stopS6Tooltip();
+  stopS6();
+
+  /* 슬라이드 진입 전 bars 리셋 (crossfade 중 빈 화면 보장) */
+  if (target === 4) buildS4Bars();
+  if (target === 5) buildS5Bars();
+  if (target === 6) buildS6();
+
+  /* slide 간 크로스페이드 전환 */
+  const fadeMap = {
+    '2-3': [slide2,slide3], '3-2': [slide3,slide2],
+    '3-4': [slide3,slide4], '4-3': [slide4,slide3],
+    '4-2': [slide4,slide2], '2-4': [slide2,slide4],
+    '2-5': [slide2,slide5], '5-2': [slide5,slide2],
+    '4-5': [slide4,slide5], '5-4': [slide5,slide4],
+    '2-6': [slide2,slide6], '6-2': [slide6,slide2],
+    '5-6': [slide5,slide6], '6-5': [slide6,slide5],
+  };
+  const fadeKey = `${currentSlide}-${target}`;
+  if (fadeMap[fadeKey]) {
+    const [outgoing, incoming] = fadeMap[fadeKey];
+    incoming.style.zIndex     = '3';
+    incoming.style.opacity    = '0';
+    incoming.style.transition = 'opacity 0.5s ease';
+    outgoing.style.zIndex     = '2';
+    outgoing.style.transition = '';
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => { incoming.style.opacity = '1'; });
+    });
+    setTimeout(() => {
+      incoming.style.transition = '';
+      outgoing.style.zIndex     = '1';
+      incoming.style.zIndex     = '2';
+      prevSlide     = currentSlide;
+      currentSlide  = target;
+      transitioning = false;
+      if (target === 3) startTooltip();
+      if (target === 4) { startS4(); startS4Tooltip(); }
+      if (target === 5) { startS5(); startS5Tooltip(); }
+      if (target === 6) { startS6(); startS6Tooltip(); }
+    }, 520);
+    return;
+  }
+
+  const { w, h } = getVP();
+  canvas.width  = w;
+  canvas.height = h;
+  canvas.style.opacity    = '1';
+  canvas.style.transition = '';
+  canvas.style.display    = 'block';
+
+  const srcTiles = shuffle(sampleTiles(renderSlide(currentSlide, w, h), w, h)).slice(0, MAX_P);
+  const dstTiles = shuffle(sampleTiles(renderSlide(target,        w, h), w, h)).slice(0, MAX_P);
+
+  const scatterParts = srcTiles.map(t => {
+    const ang   = Math.atan2(t.y - h / 2, t.x - w / 2) + (Math.random() - 0.5) * 1.4;
+    const speed = 6 + Math.random() * 14;
+    return { ...t, vx: Math.cos(ang) * speed, vy: Math.sin(ang) * speed,
+             delay: Math.random() * 0.28 };
+  });
+
+  let t0 = null;
+  requestAnimationFrame(function p1(ts) {
+    if (!t0) t0 = ts;
+    const t = clamp((ts - t0) / SCATTER_DUR, 0, 1);
+
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(0, 0, w, h);
+
+    scatterParts.forEach(p => {
+      const lt = clamp((t - p.delay) / (1 - p.delay), 0, 1);
+      const e  = easeIn(lt);
+      const px = p.x + p.vx * e * 55;
+      const py = p.y + p.vy * e * 55;
+      const a  = 1 - e;
+      const sz = TILE * (1 - e * 0.45);
+      if (a > 0.01 && sz > 0.5) {
+        ctx.globalAlpha = a;
+        ctx.fillStyle   = `rgb(${p.r},${p.g},${p.b})`;
+        ctx.fillRect(px, py, sz, sz);
+      }
+    });
+    ctx.globalAlpha = 1;
+
+    if (t < 1) { requestAnimationFrame(p1); return; }
+
+    setSlideZ(target);
+    prevSlide    = currentSlide;
+    currentSlide = target;
+
+    const assembleParts = dstTiles.map((dst, i) => {
+      let sx, sy;
+      if (i < scatterParts.length) {
+        const p = scatterParts[i];
+        sx = p.x + p.vx * 55;
+        sy = p.y + p.vy * 55;
+      } else {
+        [sx, sy] = edgePos(w, h);
+      }
+      return { ...dst, sx, sy, delay: Math.random() * 0.38 };
+    });
+
+    setTimeout(() => {
+      let t1 = null;
+      requestAnimationFrame(function p2(ts) {
+        if (!t1) t1 = ts;
+        const t2 = clamp((ts - t1) / ASSEMBLE_DUR, 0, 1);
+
+        ctx.fillStyle = '#fff';
+        ctx.fillRect(0, 0, w, h);
+
+        assembleParts.forEach(p => {
+          const lt = clamp((t2 - p.delay) / (1 - p.delay), 0, 1);
+          const e  = easeOut(lt);
+          const px = lerp(p.sx, p.x, e);
+          const py = lerp(p.sy, p.y, e);
+          if (lt > 0.01) {
+            ctx.globalAlpha = Math.min(1, lt * 6);
+            ctx.fillStyle   = `rgb(${p.r},${p.g},${p.b})`;
+            ctx.fillRect(px, py, TILE, TILE);
+          }
+        });
+        ctx.globalAlpha = 1;
+
+        if (t2 < 1) { requestAnimationFrame(p2); return; }
+
+        canvas.style.transition = 'opacity 0.18s ease';
+        canvas.style.opacity    = '0';
+        setTimeout(() => {
+          canvas.style.display    = 'none';
+          canvas.style.transition = '';
+          canvas.style.opacity    = '1';
+          transitioning = false;
+          if (currentSlide === 3) startTooltip();
+        }, 200);
+      });
+    }, 40);
+  });
+}
+
+/* ── Tooltip & logo click → back to menu ── */
+document.getElementById('s3-tooltip').addEventListener('click', () => goTo(2));
+document.getElementById('s3-nav-dots').addEventListener('click', () => goTo(2));
+
+/* ── Slide 4 data & animation ── */
+/* Figma 1920×1080 기준 각 바의 정확한 수치
+   tl = title center x from bar-left, as % of vpw
+   cl = count center x from bar-left, as % of vpw */
+const S4_BARS = [
+  { title:'Commerce Designer', count:'14', color:'#6b6b6b', rotate:-1.32, lp:22.78, tp:34.70, wp:51.43, tl:14.27, cl:47.53 },
+  { title:'UX/UI Designer',    count:'10', color:'#1a1a1a', rotate: 0,    lp:21.67, tp:46.39, wp:52.78, tl:10.92, cl:49.40 },
+  { title:'UX Planner',        count:'8',  color:'#000000', rotate: 0,    lp:23.77, tp:58.72, wp:53.39, tl: 8.82, cl:50.72 },
+  { title:'Motion',            count:'2',  color:'#4b4b4b', rotate: 0,    lp:19.59, tp:69.55, wp:53.11, tl: 5.84, cl:49.92 },
+  { title:'Director',          count:'2',  color:'#1e1e1e', rotate: 1.89, lp:22.78, tp:79.72, wp:52.91, tl: 7.18, cl:49.54 },
+  { title:'',                  count:'',   color:'#000000', rotate: 0.13, lp:21.67, tp:91.90, wp:55.26, tl: 0,    cl:0     },
+  { title:'',                  count:'',   color:'#1e1e1e', rotate: 0.13, lp:25.74, tp:100.9, wp:59.72, tl: 0,    cl:0     },
+];
+
+let s4TooltipInterval = null;
+
+function buildS4Bars() {
+  const container = document.getElementById('s4-bars');
+  container.innerHTML = '';
+  const vph = slide4.offsetHeight || 1080;
+  const vpw = slide4.offsetWidth  || 1920;
+  /* Director(idx4) z=10 sits above bar6(idx5) z=2 */
+  const zMap = [3, 4, 5, 6, 10, 2, 1];
+
+  S4_BARS.forEach((d, i) => {
+    const bar = document.createElement('div');
+    bar.className = 's4-bar';
+    const left  = vpw * d.lp / 100;
+    const top   = vph * d.tp / 100;
+    const w     = vpw * d.wp / 100;
+    const h     = vph * 12.31 / 100;
+    const fz    = Math.round(vph * 5.22 / 100);
+    const initY = -(top + h + 20); /* 완전히 화면 위로 이동 */
+    bar.dataset.initY = initY;
+    const isClickable = !!d.title || i === 5;
+    bar.style.cssText = `
+      background:${d.color};
+      width:${w}px; height:${h}px;
+      left:${left}px; top:${top}px;
+      transform:translateY(${initY}px) rotate(${d.rotate}deg);
+      transition:none; position:absolute;
+      z-index:${zMap[i]};
+      cursor:${isClickable?'pointer':'default'};
+      pointer-events:${isClickable?'auto':'none'};
+    `;
+    if (d.title) {
+      const titleX = Math.round(vpw * d.tl / 100);
+      const countX = Math.round(vpw * d.cl / 100);
+      const titleOff = Math.round(vph * 15 / 1080); /* 15px 위로 */
+      bar.innerHTML = `
+        <span class="s4-bar-title" style="
+          position:absolute;left:${titleX}px;top:calc(50% - ${titleOff}px);
+          transform:translate(-50%,-50%);font-size:${fz}px;
+        ">${d.title}</span>
+        <span class="s4-bar-count" style="
+          position:absolute;left:${countX}px;top:50%;
+          transform:translate(-50%,-50%);font-size:${fz}px;
+        ">${d.count}</span>`;
+    }
+    if (isClickable) {
+      if (i === 5) bar.addEventListener('mouseenter', () => startS4());
+      else         bar.addEventListener('mouseenter', () => dropBar(bar, i));
+    }
+    container.appendChild(bar);
+  });
+}
+
+function dropBar(bar, idx) {
+  const rot = S4_BARS[idx].rotate;
+  /* 좌우가 위아래로 흔들리는 회전 진동 */
+  const deltas = [3, -3, 2.2, -2.2, 1.4, -1.4, 0.7, 0];
+  deltas.forEach((d, k) => {
+    setTimeout(() => {
+      bar.style.transition = 'transform 0.07s ease-in-out';
+      bar.style.transform  = `translateY(0) rotate(${rot + d}deg)`;
+    }, k * 70);
+  });
+}
+
+function startS4() {
+  buildS4Bars();
+  const bars = document.querySelectorAll('.s4-bar');
+  bars.forEach((bar, i) => {
+    setTimeout(() => {
+      bar.style.transition = 'transform 0.6s cubic-bezier(0.22,1,0.36,1)';
+      bar.style.transform  = `translateY(0) rotate(${S4_BARS[i].rotate}deg)`;
+    }, 60 + i * 130);
+  });
+}
+
+function startS4Tooltip() {
+  const el = document.getElementById('s4-tooltip');
+  if (!el) return;
+  function cycle() {
+    el.classList.add('visible');
+    setTimeout(() => el.classList.remove('visible'), 2500);
+  }
+  cycle();
+  s4TooltipInterval = setInterval(cycle, 5000);
+}
+
+function stopS4Tooltip() {
+  const el = document.getElementById('s4-tooltip');
+  if (el) el.classList.remove('visible');
+  if (s4TooltipInterval) { clearInterval(s4TooltipInterval); s4TooltipInterval = null; }
+}
+
+/* ── Slide 5 data & animation ── */
+// [color, left%_vw, top%_in_wrap, width%_vw, height%_in_wrap]
+// wrapper: top=33.06%(357px), height=19.26%(208px) of 1080
+const S5_BARS = [
+  ['#423b33', 43.96, 26.92, 17.14, 19.71],
+  ['#ebebeb', 12.19, 52.88, 14.11, 20.19],
+  ['#ebebeb', 83.49, 54.81, 14.11, 20.19],
+  ['#d9d9d9',  0.00, 59.62, 32.08, 13.46],
+  ['#d9d9d9', 67.92, 53.37, 32.08, 13.46],
+  ['#423b33', 32.08, 59.62, 17.03, 13.46],
+  ['#c0b2a5', 32.08, 39.90, 29.01, 19.71],
+  ['#325c48', 32.08, 86.54, 17.03, 13.46],
+  ['#325c48', 43.96,  0.00, 17.03, 13.46],
+  ['#e59347', 32.08, 73.08, 17.03, 13.46],
+  ['#e59347', 43.96, 13.46, 17.03, 13.46],
+  ['#f0b04f', 39.38, 73.08,  9.74,  7.69],
+  ['#f0b04f', 43.96, 19.23,  9.74,  7.69],
+  ['#487669', 39.38, 80.77,  9.74, 10.58],
+  ['#487669', 43.96,  8.65,  9.74, 10.58],
+  ['#4c9a68',  0.00, 39.90,  9.48, 12.98],
+  ['#4c9a68', 83.59, 53.37,  9.48, 12.98],
+  ['#f3c44e',  9.48, 39.90, 17.24, 12.98],
+  ['#f3c44e', 66.35, 79.33, 17.24, 12.98],
+  ['#ed604e',  9.48, 26.92, 17.24, 12.98],
+  ['#ed604e', 66.35, 66.35, 17.24, 12.98],
+  ['#171715', 26.72, 26.92, 17.24, 25.00],
+  ['#171715', 49.11, 53.37, 17.24, 19.71],
+  ['#e4e5e0', 61.09, 26.92, 17.24, 12.98],
+  ['#f2f1ec', 61.09, 39.90, 17.24, 12.98],
+  ['#323232', 26.72, 43.27, 11.25, 12.50],
+  ['#302ea8',  9.48, 25.00,  8.80, 10.58],
+  ['#302ea8', 66.35, 64.42,  8.80, 10.58],
+  ['#f27559',  9.48, 13.94, 17.24, 12.98],
+  ['#f27559', 66.35, 53.37, 17.24, 12.98],
+  ['#3c56b7',  0.00, 26.92,  9.48, 12.98],
+  ['#3c56b7', 83.59, 66.35,  9.48, 12.98],
+];
+
+function buildS5Bars() {
+  const wrap   = document.getElementById('s5-bars-wrap');
+  const lineL  = document.getElementById('s5-line-left');
+  const lineR  = document.getElementById('s5-line-right');
+  const count  = document.getElementById('s5-count');
+  const logos1 = document.getElementById('s5-logos-1');
+  const logos2 = document.getElementById('s5-logos-2');
+  if (!wrap) return;
+
+  /* reset all animated elements to hidden state before crossfade */
+  if (lineL)  { lineL.style.transition  = 'none'; lineL.style.width = '0'; lineL.style.opacity = '1'; }
+  if (lineR)  { lineR.style.transition  = 'none'; lineR.style.width = '0'; lineR.style.opacity = '1'; }
+  if (count)  { count.style.transition  = 'none'; count.style.opacity  = '0'; }
+  if (logos1) { logos1.style.transition = 'none'; logos1.style.opacity = '0'; }
+  if (logos2) { logos2.style.transition = 'none'; logos2.style.opacity = '0'; }
+
+  wrap.innerHTML = '';
+  S5_BARS.forEach(([color, lp, tp, wp, hp]) => {
+    const bar = document.createElement('div');
+    bar.className = 's5-bar';
+    /* bars above wrapper center (50%) grow upward → origin at bottom;
+       bars below grow downward → origin at top */
+    const cy     = tp + hp / 2;
+    const origin = cy < 50 ? '50% 100%' : '50% 0%';
+    bar.style.cssText = `background:${color};left:${lp}%;top:${tp}%;width:${wp}%;height:${hp}%;transform:scaleY(0);transform-origin:${origin};transition:none;`;
+    wrap.appendChild(bar);
+  });
+}
+
+function startS5() {
+  const lineL  = document.getElementById('s5-line-left');
+  const lineR  = document.getElementById('s5-line-right');
+  const wrap   = document.getElementById('s5-bars-wrap');
+  const count  = document.getElementById('s5-count');
+  const logos1 = document.getElementById('s5-logos-1');
+  const logos2 = document.getElementById('s5-logos-2');
+  if (!lineL || !lineR || !wrap) return;
+
+  /* Reset lines + logos */
+  lineL.style.transition = 'none'; lineL.style.width = '0'; lineL.style.opacity = '1';
+  lineR.style.transition = 'none'; lineR.style.width = '0'; lineR.style.opacity = '1';
+  if (count)  { count.style.transition  = 'none'; count.style.opacity  = '0'; }
+  if (logos1) { logos1.style.transition = 'none'; logos1.style.opacity = '0'; }
+  if (logos2) { logos2.style.transition = 'none'; logos2.style.opacity = '0'; }
+
+  /* Make sure all bars are reset (scaleY 0) */
+  wrap.querySelectorAll('.s5-bar').forEach(b => {
+    b.style.transition = 'none';
+    b.style.transform  = 'scaleY(0)';
+  });
+
+  /* Step 1: lines grow from both sides → meet at center (0.55s) */
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    lineL.style.transition = 'width 0.55s ease-in-out';
+    lineR.style.transition = 'width 0.55s ease-in-out';
+    lineL.style.width = '50%';
+    lineR.style.width = '50%';
+  }));
+
+  /* Fade out lines just as bars begin to appear */
+  setTimeout(() => {
+    lineL.style.transition = 'opacity 0.25s ease';
+    lineR.style.transition = 'opacity 0.25s ease';
+    lineL.style.opacity = '0';
+    lineR.style.opacity = '0';
+  }, 600);
+
+  /* Step 2: bars grow up/down from center line, staggered by distance from center.
+     Bars closest to the center line appear first. */
+  const BASE = 620; /* after lines have met */
+  wrap.querySelectorAll('.s5-bar').forEach((bar, idx) => {
+    const [, , tp, , hp] = S5_BARS[idx];
+    const cy      = tp + hp / 2;                   /* bar center within wrapper */
+    const dist    = Math.abs(cy - 50);             /* distance from center (0–50) */
+    const stagger = Math.round(dist * 7);          /* 0–350 ms extra delay */
+    setTimeout(() => {
+      bar.style.transition = 'transform 0.45s cubic-bezier(0.22,1,0.36,1)';
+      bar.style.transform  = 'scaleY(1)';
+    }, BASE + stagger);
+  });
+
+  /* Step 3: count + logos fade in after last bar */
+  setTimeout(() => {
+    if (count)  { count.style.transition  = 'opacity 0.5s ease'; count.style.opacity  = '1'; }
+    if (logos1) { logos1.style.transition = 'opacity 0.5s ease'; logos1.style.opacity = '1'; }
+    if (logos2) { logos2.style.transition = 'opacity 0.5s ease'; logos2.style.opacity = '1'; }
+  }, 1300);
+}
+
+function startS5Tooltip() {
+  const el = document.getElementById('s5-tooltip');
+  if (!el) return;
+  function cycle() {
+    el.classList.add('visible');
+    setTimeout(() => el.classList.remove('visible'), 2500);
+  }
+  cycle();
+  s5TooltipInterval = setInterval(cycle, 5000);
+}
+
+function stopS5Tooltip() {
+  const el = document.getElementById('s5-tooltip');
+  if (el) el.classList.remove('visible');
+  if (s5TooltipInterval) { clearInterval(s5TooltipInterval); s5TooltipInterval = null; }
+}
+
+/* ── Slide 6 data & animation ── */
+// crop: { cw, ch = clip-container size (% of box), iw, il, it, ih = img CSS inside clip-container }
+const S6_COLS = [
+  // Column 1 — scrolls DOWN (top→bottom)
+  [
+    { url:'https://www.figma.com/api/mcp/asset/86f19c1b-4731-4d48-b141-65af8db7ee7b', op:0.20, sz:'45%' }, // Jira
+    { url:'https://www.figma.com/api/mcp/asset/b545bb85-83fa-45cd-aba3-a18f2f62fc6a', op:0.20, sz:'45%' }, // Google
+    { url:'https://www.figma.com/api/mcp/asset/56c0062e-0f6e-47c9-9032-30f59c54bfaa', op:0.20, sz:'45%' }, // Claude
+    { url:'https://www.figma.com/api/mcp/asset/d86ce1a2-c106-42f3-90ec-90557f6e624a', op:0.20,            // Excel
+      crop:{ cw:'51%', ar:'1/1',      iw:'132%', il:'-17%', it:'0%',   ih:'100%' } },
+  ],
+  // Column 2 — scrolls UP (bottom→top)
+  [
+    { url:'https://www.figma.com/api/mcp/asset/73913cca-4ccd-4c4f-8a99-00716de841e9', op:0.20, sz:'46%' }, // PowerPoint
+    { url:'https://www.figma.com/api/mcp/asset/e9964a84-fb88-4f7b-adf0-c07240f03355', op:0.30, sz:'40%' }, // Figma
+    { url:'https://www.figma.com/api/mcp/asset/04a64ff7-c1f3-4b4a-9531-f5f25da99b55', op:0.30, sz:'46%', blend:'multiply' }, // Slack
+    { url:'https://www.figma.com/api/mcp/asset/17ad9d86-383f-4065-9241-ebcb103141ab', op:0.20, sz:'48%' }, // Zeplin
+  ],
+  // Column 3 — scrolls DOWN (top→bottom)
+  [
+    { url:'https://www.figma.com/api/mcp/asset/53ace4d6-0b8e-4d25-9f16-0476d24bb066', op:0.20, sz:'46%' }, // Word
+    { url:'https://www.figma.com/api/mcp/asset/9c599a16-31d5-49da-b2a9-895a7428f1f3', op:0.20, sz:'48%' }, // Gemini
+    { url:'https://www.figma.com/api/mcp/asset/b53ef8d3-3436-4098-8164-b1cfb6138e2b', op:0.20,            // ChatGPT
+      crop:{ cw:'46%', ar:'139/151', iw:'193%', il:'-47%', it:'0%',   ih:'100%' } },
+    { url:'framer.png', op:0.35, sz:'38%' }, // Framer
+  ],
+];
+
+const S6_SPEED = 40; /* px/s — slow, continuous */
+const s6Pos    = [0, 0, 0];
+let   s6SetH   = 0;
+let   s6Running = false;
+let   s6LastTs  = null;
+
+function buildS6() {
+  const container = document.getElementById('s6-cols');
+  if (!container) return;
+  container.innerHTML = '';
+
+  S6_COLS.forEach(boxes => {
+    const col   = document.createElement('div');
+    col.className = 's6-col';
+    const inner = document.createElement('div');
+    inner.className = 's6-col-inner';
+
+    /* 2 identical sets → seamless infinite loop */
+    for (let s = 0; s < 2; s++) {
+      boxes.forEach(({ url, op, sz, blend, crop, fit }) => {
+        const box = document.createElement('div');
+        box.className = 's6-box';
+        if (crop) {
+          /* Replicate Figma's overflow:hidden crop for Excel / ChatGPT / Framer */
+          const clip = document.createElement('div');
+          clip.style.cssText = `width:${crop.cw};aspect-ratio:${crop.ar};overflow:hidden;position:relative;opacity:${op};filter:grayscale(1);flex-shrink:0;`;
+          const img = document.createElement('img');
+          img.src = url;
+          img.style.cssText = `position:absolute;width:${crop.iw};left:${crop.il};top:${crop.it};height:${crop.ih};max-width:none;pointer-events:none;display:block;`;
+          clip.appendChild(img);
+          box.appendChild(clip);
+        } else {
+          const img = document.createElement('img');
+          img.src = url;
+          img.style.cssText = `width:${sz};height:${sz};opacity:${op};object-fit:${fit||'contain'};filter:grayscale(1);${blend ? 'mix-blend-mode:' + blend + ';' : ''}`;
+          box.appendChild(img);
+        }
+        inner.appendChild(box);
+      });
+    }
+
+    col.appendChild(inner);
+    container.appendChild(col);
+  });
+}
+
+function startS6() {
+  s6Running = false;
+  s6LastTs  = null;
+
+  requestAnimationFrame(() => {
+    const inners = document.querySelectorAll('#s6-cols .s6-col-inner');
+    if (!inners.length) return;
+
+    /* compute one-set height from actual rendered box size */
+    const boxes = inners[0].querySelectorAll('.s6-box');
+    if (boxes.length < 2) return;
+    const boxH = boxes[0].offsetHeight;
+    const gap  = boxes[1].getBoundingClientRect().top - boxes[0].getBoundingClientRect().bottom;
+    s6SetH = 4 * boxH + 3 * Math.max(gap, 0);
+
+    /* initial positions:
+       col 0 & 2 (DOWN): start at -setH so first item flows in from top
+       col 1   (UP)    : start at 0,  flows upward toward -setH            */
+    inners.forEach((inner, i) => {
+      s6Pos[i] = (i === 1) ? 0 : -s6SetH;
+      inner.style.transform = `translateY(${s6Pos[i]}px)`;
+    });
+
+    s6Running = true;
+    requestAnimationFrame(tickS6);
+  });
+}
+
+function tickS6(ts) {
+  if (!s6Running) return;
+  if (s6LastTs === null) s6LastTs = ts;
+  const dt = Math.min((ts - s6LastTs) / 1000, 0.05);
+  s6LastTs = ts;
+
+  const inners = document.querySelectorAll('#s6-cols .s6-col-inner');
+  inners.forEach((inner, i) => {
+    if (i === 1) {                         /* upward */
+      s6Pos[i] -= S6_SPEED * dt;
+      if (s6Pos[i] <= -s6SetH) s6Pos[i] += s6SetH;
+    } else {                               /* downward */
+      s6Pos[i] += S6_SPEED * dt;
+      if (s6Pos[i] >= 0) s6Pos[i] -= s6SetH;
+    }
+    inner.style.transform = `translateY(${s6Pos[i]}px)`;
+  });
+
+  requestAnimationFrame(tickS6);
+}
+
+function stopS6() {
+  s6Running = false;
+  s6LastTs  = null;
+}
+
+function startS6Tooltip() {
+  const el = document.getElementById('s6-tooltip');
+  if (!el) return;
+  function cycle() {
+    el.classList.add('visible');
+    setTimeout(() => el.classList.remove('visible'), 2500);
+  }
+  cycle();
+  s6TooltipInterval = setInterval(cycle, 5000);
+}
+
+function stopS6Tooltip() {
+  const el = document.getElementById('s6-tooltip');
+  if (el) el.classList.remove('visible');
+  if (s6TooltipInterval) { clearInterval(s6TooltipInterval); s6TooltipInterval = null; }
+}
+
+/* ── Input ── */
+window.addEventListener('wheel', e => {
+  if (e.deltaY >  30 && currentSlide === 1) goTo(2);
+  if (e.deltaY >  30 && currentSlide === 2) goTo(3);
+  if (e.deltaY >  30 && currentSlide === 3) goTo(4);
+  if (e.deltaY >  30 && currentSlide === 4) goTo(5);
+  if (e.deltaY >  30 && currentSlide === 5) goTo(6);
+  if (e.deltaY < -30 && currentSlide === 2) goTo(1);
+  if (e.deltaY < -30 && currentSlide === 3) goTo(2);
+  if (e.deltaY < -30 && currentSlide === 4) goTo(3);
+  if (e.deltaY < -30 && currentSlide === 5) goTo(4);
+  if (e.deltaY < -30 && currentSlide === 6) goTo(5);
+}, { passive: true });
+
+let ty0 = 0;
+window.addEventListener('touchstart', e => { ty0 = e.touches[0].clientY; }, { passive: true });
+window.addEventListener('touchend',   e => {
+  const dy = ty0 - e.changedTouches[0].clientY;
+  if (dy >  40 && currentSlide === 1) goTo(2);
+  if (dy >  40 && currentSlide === 2) goTo(3);
+  if (dy >  40 && currentSlide === 3) goTo(4);
+  if (dy >  40 && currentSlide === 4) goTo(5);
+  if (dy >  40 && currentSlide === 5) goTo(6);
+  if (dy < -40 && currentSlide === 2) goTo(1);
+  if (dy < -40 && currentSlide === 3) goTo(2);
+  if (dy < -40 && currentSlide === 4) goTo(3);
+  if (dy < -40 && currentSlide === 5) goTo(4);
+  if (dy < -40 && currentSlide === 6) goTo(5);
+}, { passive: true });
+
+window.addEventListener('keydown', e => {
+  if ((e.key === 'ArrowDown' || e.key === 'PageDown') && currentSlide === 1) goTo(2);
+  if ((e.key === 'ArrowDown' || e.key === 'PageDown') && currentSlide === 2) goTo(3);
+  if ((e.key === 'ArrowDown' || e.key === 'PageDown') && currentSlide === 3) goTo(4);
+  if ((e.key === 'ArrowDown' || e.key === 'PageDown') && currentSlide === 4) goTo(5);
+  if ((e.key === 'ArrowDown' || e.key === 'PageDown') && currentSlide === 5) goTo(6);
+  if ((e.key === 'ArrowUp'   || e.key === 'PageUp')   && currentSlide === 2) goTo(1);
+  if ((e.key === 'ArrowUp'   || e.key === 'PageUp')   && currentSlide === 3) goTo(2);
+  if ((e.key === 'ArrowUp'   || e.key === 'PageUp')   && currentSlide === 4) goTo(3);
+  if ((e.key === 'ArrowUp'   || e.key === 'PageUp')   && currentSlide === 5) goTo(4);
+  if ((e.key === 'ArrowUp'   || e.key === 'PageUp')   && currentSlide === 6) goTo(5);
+});
+</script>
+</body>
+</html>

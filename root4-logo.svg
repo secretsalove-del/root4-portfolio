@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="116" height="32" viewBox="0 0 116 32">
+  <rect x="0" y="8"  width="7" height="7" fill="#1a1a1a"/>
+  <rect x="0" y="19" width="7" height="7" fill="#1a1a1a"/>
+  <text x="22" y="24"
+    font-family="'Helvetica Neue', Helvetica, Arial, sans-serif"
+    font-weight="700"
+    font-size="19"
+    letter-spacing="4"
+    fill="#1a1a1a">ROOT4</text>
+</svg>
